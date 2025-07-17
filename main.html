@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time Bubble</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e7eaff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #f3f6ff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+      margin-top: 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1, h2 {
+      font-size: 2em;
+      margin: 10px 0;
+    }
+
+    .button, button {
+      background-color: #8ebeff;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      font-size: 1em;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    .bubble, .message-box {
+      background: white;
+      margin: 10px 0;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .back-arrow {
+      font-size: 1.5em;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    /* Floating Bubbles */
+    .bubble-decor {
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 8s ease-in-out infinite, moveAround 18s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-100px); }
+    }
+
+    @keyframes moveAround {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(30px); }
+      50% { transform: translateX(-40px); }
+      75% { transform: translateX(20px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating bubbles -->
+  <div class="bubble-decor" style="background-color: #ffc0cb; width: 40px; height: 40px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+  <div class="bubble-decor" style="background-color: #add8e6; width: 35px; height: 35px; top: 20%; right: 15%; animation-delay: 2s;"></div>
+  <div class="bubble-decor" style="background-color: #90ee90; width: 30px; height: 30px; bottom: 20%; left: 25%; animation-delay: 4s;"></div>
+  <div class="bubble-decor" style="background-color: #ffa07a; width: 50px; height: 50px; bottom: 10%; right: 20%; animation-delay: 1s;"></div>
+  <div class="bubble-decor" style="background-color: #87cefa; width: 38px; height: 38px; top: 40%; right: 25%; animation-delay: 1s;"></div>
+
+  <!-- First Page -->
+  <div class="container" id="screen1">
+    <h1>Time Bubble</h1>
+    <h2>Unlock Your Emotions, On Time</h2>
+    <button onclick="goTo('signin')">Get Started</button>
+  </div>
+
+  <!-- Sign In -->
+  <div class="container" id="signin" style="display:none">
+    <div class="back-arrow" onclick="goTo('screen1')">←</div>
+    <h2>Sign In</h2>
+    <input type="email" id="emailInput" placeholder="Email" />
+    <input type="password" id="passwordInput" placeholder="Password" />
+    <button onclick="signIn()">Sign In</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="container" id="dashboard" style="display:none">
+    <div class="top-bar">
+      <h1>Time Bubble</h1>
+      <div>
+        <button onclick="goTo('newbubble')">+New Bubble</button>
+        <button onclick="goTo('unlocked')">Unlocked Bubbles</button>
+      </div>
+    </div>
+    <h2>Unlock Your Emotions, On Time</h2>
+    <div id="bubbleList"></div>
+  </div>
+
+  <!-- New Bubble -->
+  <div class="container" id="newbubble" style="display:none">
+    <div class="back-arrow" onclick="goTo('dashboard')">←</div>
+    <h2>Add New Bubble</h2>
+    <input type="text" id="titleInput" placeholder="Message Title" />
+    <textarea id="messageInput" placeholder="Message"></textarea>
+    <input type="file" id="fileInput" />
+    <input type="date" id="dateInput" />
+    <button onclick="createBubble()">Create</button>
+  </div>
+
+  <!-- Locked Bubble View -->
+  <div class="container" id="lockedview" style="display:none">
+    <div class="back-arrow" onclick="goTo('dashboard')">←</div>
+    <h2>Time Bubble</h2>
+    <h1 id="lockedTitle">Message Title</h1>
+    <p id="lockedDate">Unlocks on Date</p>
+    <div class="message-box">Unlocks at<br><strong id="unlockTime">Time remaining</strong></div>
+  </div>
+
+  <!-- Unlocked Messages -->
+  <div class="container" id="unlocked" style="display:none">
+    <div class="back-arrow" onclick="goTo('dashboard')">←</div>
+    <h2>Unlocked Messages</h2>
+    <div id="unlockedList"></div>
+  </div>
+
+  <!-- Message View -->
+  <div class="container" id="message" style="display:none">
+    <div class="back-arrow" onclick="goTo('unlocked')">←</div>
+    <h2>Time Bubble</h2>
+    <div class="message-box" id="messageBox"></div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #7f7d9c; color: #000; padding: 10px 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); display: none; z-index: 1000;">
+    Bubble created successfully!
+  </div>
+
+  <script>
+    let bubbles = JSON.parse(localStorage.getItem('bubbles')) || [];
+    let currentBubble = null;
+
+    function goTo(id) {
+      const sections = document.querySelectorAll('.container');
+      sections.forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      if (id === 'dashboard') renderDashboard();
+      if (id === 'unlocked') renderUnlocked();
+      if (id === 'message') renderMessage();
+      if (id === 'lockedview') renderLocked();
+    }
+
+    function signIn() {
+      const email = document.getElementById('emailInput').value;
+      const password = document.getElementById('passwordInput').value;
+      if (email && password) {
+        localStorage.setItem('user', JSON.stringify({ email }));
+        goTo('dashboard');
+        showNotification('Signed in successfully!', 'success');
+      } else {
+        showNotification('Enter email and password', 'error');
+      }
+    }
+
+    function createBubble() {
+      const title = document.getElementById('titleInput').value;
+      const message = document.getElementById('messageInput').value;
+      const date = document.getElementById('dateInput').value;
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!title || !message || !date) {
+        showNotification("Please fill all fields.", "error");
+        return;
+      }
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const bubble = {
+            title,
+            message,
+            date,
+            fileName: file.name,
+            fileType: file.type,
+            fileData: e.target.result
+          };
+          bubbles.push(bubble);
+          localStorage.setItem('bubbles', JSON.stringify(bubbles));
+          goTo('dashboard');
+          showNotification('Bubble created successfully!', 'success');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const bubble = { title, message, date };
+        bubbles.push(bubble);
+        localStorage.setItem('bubbles', JSON.stringify(bubbles));
+        goTo('dashboard');
+        showNotification('Bubble created successfully!', 'success');
+      }
+    }
+
+    function renderDashboard() {
+      const bubbleList = document.getElementById('bubbleList');
+      bubbleList.innerHTML = '';
+      const today = new Date();
+      bubbles.forEach(bubble => {
+        const unlockDate = new Date(bubble.date);
+        if (unlockDate > today) {
+          const div = document.createElement('div');
+          div.className = 'bubble';
+          div.innerHTML = `${bubble.title}<br>Unlocks on ${bubble.date}`;
+          div.onclick = () => {
+            currentBubble = bubble;
+            goTo('lockedview');
+          };
+          bubbleList.appendChild(div);
+        }
+      });
+    }
+
+    function renderUnlocked() {
+      const unlockedList = document.getElementById('unlockedList');
+      unlockedList.innerHTML = '';
+      const today = new Date();
+      bubbles.forEach(bubble => {
+        const unlockDate = new Date(bubble.date);
+        if (unlockDate <= today) {
+          const div = document.createElement('div');
+          div.className = 'bubble';
+          div.innerHTML = `${bubble.title}<br>Unlocked on ${bubble.date}`;
+          div.onclick = () => {
+            currentBubble = bubble;
+            goTo('message');
+          };
+          unlockedList.appendChild(div);
+        }
+      });
+    }
+
+    function renderMessage() {
+      const box = document.getElementById('messageBox');
+      if (currentBubble) {
+        let fileHTML = '';
+        if (currentBubble.fileData) {
+          const isImage = currentBubble.fileType && currentBubble.fileType.startsWith('image/');
+          if (isImage) {
+            fileHTML = `<img src="${currentBubble.fileData}" alt="${currentBubble.fileName}" style="max-width:100%; margin-top:10px;" />`;
+          } else {
+            fileHTML = `<p><a href="${currentBubble.fileData}" download="${currentBubble.fileName}">Download ${currentBubble.fileName}</a></p>`;
+          }
+        }
+        box.innerHTML = `<h1>${currentBubble.title}</h1><p>${currentBubble.message}</p><p>Unlocked on ${currentBubble.date}</p>${fileHTML}`;
+      }
+    }
+
+    function renderLocked() {
+      if (currentBubble) {
+        document.getElementById('lockedTitle').innerText = currentBubble.title;
+        const today = new Date();
+        const unlockDate = new Date(currentBubble.date);
+
+        const isToday = unlockDate.toDateString() === today.toDateString();
+
+        if (isToday) {
+          document.getElementById('lockedDate').innerText = "Today is the unlock day! You can go and read or watch.";
+          setTimeout(() => goTo('message'), 3000);
+        } else if (unlockDate > today) {
+          document.getElementById('lockedDate').innerText = `Unlocks on ${currentBubble.date}`;
+
+          function updateCountdown() {
+            const now = new Date();
+            const diff = unlockDate - now;
+
+            if (diff <= 0) {
+              document.getElementById('unlockTime').innerText = "Unlocked! Redirecting...";
+              setTimeout(() => goTo('message'), 2000);
+              return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('unlockTime').innerText = `${hours}h ${minutes}m ${seconds}s`;
+            setTimeout(updateCountdown, 1000);
+          }
+
+          updateCountdown();
+        } else {
+          document.getElementById('lockedDate').innerText = `Unlock date has passed.`;
+          goTo('message');
+        }
+      }
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      const successColors = ['#90ee90', '#add8e6', '#ffd700'];
+      const errorColors = ['#ff9999', '#ff6666', '#ff4d4d'];
+      const infoColors = ['#d3d3d3', '#e0e0e0'];
+
+      let colors;
+      switch (type) {
+        case 'success': colors = successColors; break;
+        case 'error': colors = errorColors; break;
+        default: colors = infoColors;
+      }
+
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      notification.innerText = message;
+      notification.style.background = randomColor;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
+
