@@ -44,7 +44,6 @@ I wanted to build something meaningful, fun, and a little emotional — somethin
 <img width="1901" height="903" alt="image" src="https://github.com/user-attachments/assets/7a85199e-5356-4a97-b70e-e8f18f5a325a" />
 
 
-<img width="1910" height="885" alt="image" src="https://github.com/user-attachments/assets/8d006c94-1f10-4404-adae-da23e66f4b7f" />
 
 
 ---
